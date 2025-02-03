@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         spawnManager = FindFirstObjectByType<SpawnManager>();
+        scoreText.text = "Score: " + score;
     }
 
     public void AddScore(int points)
@@ -42,5 +44,19 @@ public class GameManager : MonoBehaviour
     public bool IsGameOver()
     {
         return isGameOver;
+    }
+
+    public void GameOver()
+    {
+        // Controlla se il punteggio corrente è maggiore dell'HighestScore
+        int highestScore = PlayerPrefs.GetInt("HighestScore", 0);
+        if (score > highestScore)
+        {
+            PlayerPrefs.SetInt("HighestScore", score);
+            PlayerPrefs.Save();
+        }
+
+        // Torna al menu principale
+        SceneManager.LoadScene("MainMenu");
     }
 }

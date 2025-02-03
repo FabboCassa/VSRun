@@ -36,6 +36,7 @@ public class Enemy : MonoBehaviour
         {
             Debug.Log("Player hit!");
             GameManager.Instance.StopSpawner();
+            GameManager.Instance.GameOver();
         }
     }
 }
