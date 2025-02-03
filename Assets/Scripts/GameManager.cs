@@ -6,12 +6,14 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    
-    private int score = 0;
+
+    private int score;
     private SpawnManager spawnManager;
     private bool isGameOver = false;
 
     public TextMeshProUGUI scoreText;
+    private int highestScore;
+    private Data data;
 
     private void Awake()
     {
@@ -23,7 +25,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        data = SaveSystem.getSavedData();
         spawnManager = FindFirstObjectByType<SpawnManager>();
+        highestScore = data.GetHighScore();
+        score = 0;
         scoreText.text = "Score: " + score;
     }
 
@@ -48,15 +53,21 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        // Controlla se il punteggio corrente è maggiore dell'HighestScore
-        int highestScore = PlayerPrefs.GetInt("HighestScore", 0);
+
         if (score > highestScore)
         {
-            PlayerPrefs.SetInt("HighestScore", score);
-            PlayerPrefs.Save();
+            Debug.Log("New high score!");
+            highestScore = score;
+            data.SetHighScore(highestScore);
+            SaveSystem.SaveData(data);
         }
 
-        // Torna al menu principale
+        // Back to main menu
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public int GetHighScore()
+    {
+        return score;
     }
 }

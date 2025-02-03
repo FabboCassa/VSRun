@@ -5,22 +5,26 @@ using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
 {
-    public TextMeshProUGUI highestScoreText; // Riferimento al testo UI per il punteggio più alto
+    public TextMeshProUGUI highestScoreText;
+    private int highestScore;
 
     private void Start()
     {
-        // Carica il punteggio più alto salvato, se non esiste usa 0
-        int highestScore = PlayerPrefs.GetInt("HighestScore", 0);
+        SaveSystem.initializeData();
+        Data data = SaveSystem.getSavedData();
+        if (data == null)
+        {
+            Debug.Log("No save data found");
+            highestScore = 0;
+        } else {
+            highestScore = data.GetHighScore();
+        }
         highestScoreText.text = "Highest Score: " + highestScore;
     }
 
     public void StartNewGame()
     {
-        // Resetta il punteggio corrente a 0
-        PlayerPrefs.SetInt("CurrentScore", 0);
-        PlayerPrefs.Save();
-        
-        // Carica la scena del gioco
+        //load the main game scene
         SceneManager.LoadScene("MainGame");
     }
 }
