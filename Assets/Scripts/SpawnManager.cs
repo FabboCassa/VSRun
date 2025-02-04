@@ -6,6 +6,7 @@ public class SpawnManager : MonoBehaviour
 {
     public GameObject enemyPrefab;
     private bool isSpawning = true;
+    public List<GameObject> powerUpPrefabs;
     private readonly Dictionary<EnumPosition, Vector3> positions = new()
     {
         { EnumPosition.Left, new Vector3(-3, 0, 25) },
@@ -15,7 +16,7 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
-        InvokeRepeating(nameof(SpawnEnemy), 1, 2);
+        InvokeRepeating(nameof(SpawnObject), 1, 2);
     }
 
     private float lastSpawnRate = -1f; // Valore iniziale impossibile
@@ -32,7 +33,7 @@ public class SpawnManager : MonoBehaviour
             if (newSpawnRate > 0)
             {
                 isSpawning = true;
-                InvokeRepeating(nameof(SpawnEnemy), 1, newSpawnRate);
+                InvokeRepeating(nameof(SpawnObject), 1, newSpawnRate);
                 Debug.Log("Spawn rate changed to: " + newSpawnRate);
             }
             lastSpawnRate = newSpawnRate;
@@ -47,20 +48,37 @@ public class SpawnManager : MonoBehaviour
         return -1f;
     }
 
-    private void SpawnEnemy()
+    private void SpawnObject()
     {
         if (!isSpawning) return;
 
         EnumPosition randomPosition = (EnumPosition)Random.Range(0, 3);
         Vector3 spawnPosition = positions[randomPosition];
 
-        Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        float roll = Random.Range(0f, 1f);
+
+        if (roll <= 0.05f && powerUpPrefabs.Count > 0)
+        {
+            SpawnPowerUp(spawnPosition);
+        }
+        else
+        {
+            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        }
     }
+
+    private void SpawnPowerUp(Vector3 spawnPosition)
+    {
+        spawnPosition.y = 0.5f;
+        int randomIndex = Random.Range(0, powerUpPrefabs.Count);
+        Instantiate(powerUpPrefabs[randomIndex], spawnPosition, Quaternion.identity);
+    }
+
 
     public void StopSpawning()
     {
         isSpawning = false;
-        CancelInvoke(nameof(SpawnEnemy));
+        CancelInvoke(nameof(SpawnObject));
     }
 
     public bool IsSpawning()
