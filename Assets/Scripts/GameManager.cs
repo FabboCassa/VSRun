@@ -2,12 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    private int score;
+    private int score, time;
     private SpawnManager spawnManager;
     private bool isGameOver = false;
 
@@ -29,14 +30,29 @@ public class GameManager : MonoBehaviour
         spawnManager = FindFirstObjectByType<SpawnManager>();
         highestScore = data.GetHighScore();
         score = 0;
+        time = 0;
         scoreText.text = "Score: " + score;
+        StartCoroutine(IncreaseTime());
+    }
+
+    private IEnumerator IncreaseTime()
+    {
+        while (!isGameOver)
+        {
+            yield return new WaitForSeconds(1);
+            AddTime(1);
+        }
     }
 
     public void AddScore(int points)
     {
         score += points;
-        Debug.Log("Score: " + score);
         scoreText.text = "Score: " + score;
+    }
+
+    private void AddTime(int points)
+    {
+        time += points;
     }
 
     public void StopSpawner()
@@ -69,5 +85,10 @@ public class GameManager : MonoBehaviour
     public int GetHighScore()
     {
         return score;
+    }
+
+    public int GetTime()
+    {
+        return time;
     }
 }

@@ -5,25 +5,45 @@ public class Enemy : MonoBehaviour
     private GameObject player;
     public float speed;
     private bool hasScored = false; // Per evitare punti duplicati
+    private GameManager gameManager;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        gameManager = GameManager.Instance;
+        int time = gameManager.GetTime();
+
+        if (time < (int)PhaseTime.FirstPhase)
+        {
+            speed = 10;
+        }
+        else if (time < (int)PhaseTime.SecondPhase)
+        {
+            speed = 15;
+        }
+        else if (time < (int)PhaseTime.ThirdPhase)
+        {
+            speed = 20;
+        }
+        else
+        {
+            speed = 30;
+        }
+
+
     }
 
     void Update()
     {
-        if (GameManager.Instance.IsGameOver()) return;
+        if (gameManager.IsGameOver()) return;
         transform.position += Vector3.back * speed * Time.deltaTime;
 
-        // Controllo se il nemico ha superato Z = 0
         if (!hasScored && transform.position.z <= 0)
         {
-            hasScored = true; // Evita punti doppi
-            GameManager.Instance.AddScore(1);
+            hasScored = true;
+            gameManager.AddScore(1);
         }
 
-        // Elimina l'oggetto quando supera Z = -5
         if (transform.position.z <= -5)
         {
             Destroy(gameObject);
@@ -35,8 +55,8 @@ public class Enemy : MonoBehaviour
         if (other.gameObject == player)
         {
             Debug.Log("Player hit!");
-            GameManager.Instance.StopSpawner();
-            GameManager.Instance.GameOver();
+            gameManager.StopSpawner();
+            gameManager.GameOver();
         }
     }
 }
