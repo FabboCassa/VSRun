@@ -8,9 +8,9 @@ public class SpawnManager : MonoBehaviour
     private bool isSpawning = true;
     private readonly Dictionary<EnumPosition, Vector3> positions = new()
     {
-        { EnumPosition.Left, new Vector3(-5, 0, 25) },
+        { EnumPosition.Left, new Vector3(-3, 0, 25) },
         { EnumPosition.Center, new Vector3(0, 0, 25) },
-        { EnumPosition.Right, new Vector3(5, 0, 25) }
+        { EnumPosition.Right, new Vector3(3, 0, 25) }
     };
 
     void Start()

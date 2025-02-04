@@ -4,17 +4,46 @@ public class PlayerController : MonoBehaviour
 {
     private EnumPosition currentPosition = EnumPosition.Center; // Partenza al centro
 
-    private float moveDistance = 5f; // Distanza di spostamento
+    private float moveDistance = 3f; // Distanza di spostamento
+
+    private Vector2 startTouchPosition;
+    private Vector2 endTouchPosition;
+    private float minSwipeDistance = 50f; // Distanza minima per considerare uno swipe
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.touchCount > 0)
         {
-            MoveLeft();
+            Touch touch = Input.GetTouch(0);
+
+            switch (touch.phase)
+            {
+                case TouchPhase.Began:
+                    startTouchPosition = touch.position;
+                    break;
+
+                case TouchPhase.Ended:
+                    endTouchPosition = touch.position;
+                    DetectSwipe();
+                    break;
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.D))
+    }
+
+    void DetectSwipe()
+    {
+        float swipeDistanceX = endTouchPosition.x - startTouchPosition.x;
+
+        if (Mathf.Abs(swipeDistanceX) > minSwipeDistance)
         {
-            MoveRight();
+            if (swipeDistanceX > 0)
+            {
+                MoveRight(); // Swipe destro
+            }
+            else
+            {
+                MoveLeft(); // Swipe sinistro
+            }
         }
     }
 
