@@ -6,6 +6,13 @@ public class Enemy : MonoBehaviour
     public float speed;
     private bool hasScored = false; // Per evitare punti duplicati
     private GameManager gameManager;
+    private enum SpeedPhase
+    {
+        FirstPhaseSpeed = 10,
+        SecondPhaseSpeed = 15,
+        ThirdPhaseSpeed = 20,
+        FourthPhaseSpeed = 30
+    }
 
     void Start()
     {
@@ -15,19 +22,19 @@ public class Enemy : MonoBehaviour
 
         if (time < (int)PhaseTime.FirstPhase)
         {
-            speed = 10;
+            speed = (float)SpeedPhase.FirstPhaseSpeed;
         }
         else if (time < (int)PhaseTime.SecondPhase)
         {
-            speed = 15;
+            speed = (float)SpeedPhase.SecondPhaseSpeed;
         }
         else if (time < (int)PhaseTime.ThirdPhase)
         {
-            speed = 20;
+            speed = (float)SpeedPhase.ThirdPhaseSpeed;
         }
         else
         {
-            speed = 30;
+            speed = (float)SpeedPhase.FourthPhaseSpeed;
         }
 
 
