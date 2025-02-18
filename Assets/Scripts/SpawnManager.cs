@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.Netcode;
+
 
 public class SpawnManager : MonoBehaviour
 {
@@ -14,29 +16,44 @@ public class SpawnManager : MonoBehaviour
         { EnumPosition.Right, new Vector3(3, 0, 25) }
     };
 
-    void Start()
+    private void Start()
     {
-        InvokeRepeating(nameof(SpawnObject), 1, 2);
+        if (NetworkManager.Singleton.IsHost)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayer;
+            InvokeRepeating(nameof(SpawnObject), 1, 1);
+        }
+    }
+
+    private void SpawnPlayer(ulong clientId)
+    {
+        if (NetworkManager.Singleton.IsServer) // Solo l'host può spawnare i player
+        {
+            GameObject player = Instantiate(NetworkManager.Singleton.NetworkConfig.PlayerPrefab, Vector3.zero, Quaternion.identity);
+            player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+        }
     }
 
     private float lastSpawnRate = -1f; // Valore iniziale impossibile
 
-    void Update()
+    private void FixedUpdate()
     {
-        float currentTime = GameManager.Instance.GetTime();
-        float newSpawnRate = GetSpawnRate(currentTime);
-
-        if (newSpawnRate != lastSpawnRate)
         {
-            StopSpawning();
-            Wait(3f);
-            if (newSpawnRate > 0)
+            float currentTime = GameManager.Instance.GetTime();
+            float newSpawnRate = GetSpawnRate(currentTime);
+
+            if (newSpawnRate != lastSpawnRate)
             {
-                isSpawning = true;
-                InvokeRepeating(nameof(SpawnObject), 1, newSpawnRate);
-                Debug.Log("Spawn rate changed to: " + newSpawnRate);
+                StopSpawning();
+                Wait(3f);
+                if (newSpawnRate > 0)
+                {
+                    isSpawning = true;
+                    InvokeRepeating(nameof(SpawnObject), 1, newSpawnRate);
+                    Debug.Log("Spawn rate changed to: " + newSpawnRate);
+                }
+                lastSpawnRate = newSpawnRate;
             }
-            lastSpawnRate = newSpawnRate;
         }
     }
 
@@ -63,7 +80,9 @@ public class SpawnManager : MonoBehaviour
         }
         else
         {
-            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            var instance = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            var instanceNetworkObject = instance.GetComponent<NetworkObject>();
+            instanceNetworkObject.Spawn();
         }
     }
 
@@ -71,7 +90,9 @@ public class SpawnManager : MonoBehaviour
     {
         spawnPosition.y = 0.5f;
         int randomIndex = Random.Range(0, powerUpPrefabs.Count);
-        Instantiate(powerUpPrefabs[randomIndex], spawnPosition, Quaternion.identity);
+        var instance = Instantiate(powerUpPrefabs[randomIndex], spawnPosition, Quaternion.identity);
+        var instanceNetworkObject = instance.GetComponent<NetworkObject>();
+        instanceNetworkObject.Spawn();
     }
 
 

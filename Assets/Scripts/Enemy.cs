@@ -31,8 +31,8 @@ public class Enemy : ItemManager
         if (other.gameObject == player)
         {
             Debug.Log("Player hit!");
-            gameManager.StopSpawner();
-            gameManager.GameOver();
+            //gameManager.StopSpawner();
+            //gameManager.GameOver();
         }
     }
 }
