@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     {
         data = SaveSystem.getSavedData();
         spawnManager = FindFirstObjectByType<SpawnManager>();
-        highestScore = data.GetHighScore();
+        if(data != null) highestScore = data.GetHighScore();
         score = 0;
         time = 0;
         scoreText.text = "Score: " + score;
@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
         while (!isGameOver)
         {
             yield return new WaitForSeconds(1);
-            AddTime(1);
+            AddTime(1); 
         }
     }
 

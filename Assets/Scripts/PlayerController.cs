@@ -9,6 +9,13 @@ public class PlayerController : MonoBehaviour
     private Vector2 startTouchPosition;
     private Vector2 endTouchPosition;
     private float minSwipeDistance = 50f; // Distanza minima per considerare uno swipe
+    private int life = 3;
+
+    private SpawnManager spawnManager;
+    void Start()
+    {
+        spawnManager = FindFirstObjectByType<SpawnManager>();
+    }
 
     void Update()
     {
@@ -27,6 +34,10 @@ public class PlayerController : MonoBehaviour
                     DetectSwipe();
                     break;
             }
+        }
+
+        if (transform.position.z<25) {
+            transform.position += Vector3.forward * 0.0005f;
         }
     }
 
@@ -73,5 +84,19 @@ public class PlayerController : MonoBehaviour
             transform.position += Vector3.right * moveDistance;
             currentPosition = EnumPosition.Center;
         }
+    }
+
+    public int getLife()
+    {
+        return life;
+    }
+    public void Hit() {
+        life--;
+        Debug.Log("Life: " + life);
+        if(transform.position.z>10) {
+            transform.position += Vector3.back * 3;
+        } else if (transform.position.z>=1) {
+            transform.position += Vector3.back * 1;
+        } 
     }
 }

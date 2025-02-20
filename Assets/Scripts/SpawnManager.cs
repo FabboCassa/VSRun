@@ -10,12 +10,13 @@ public class SpawnManager : MonoBehaviour
     private bool isSpawning = true;
     public List<GameObject> powerUpPrefabs;
     private Vector3 positionPlayer = new Vector3(0, 0.7f, 0);
+    private GameManager gameManager;
 
     private readonly Dictionary<EnumPosition, Vector3> positions = new()
     {
-        { EnumPosition.Left, new Vector3(-3, 0.5f, 25) }, // Adjusted y-coordinate
-        { EnumPosition.Center, new Vector3(0, 0.5f, 25) }, // Adjusted y-coordinate
-        { EnumPosition.Right, new Vector3(3, 0.5f, 25) } // Adjusted y-coordinate
+        { EnumPosition.Left, new Vector3(-3, 0.5f, 45) }, // Adjusted y-coordinate
+        { EnumPosition.Center, new Vector3(0, 0.5f, 45) }, // Adjusted y-coordinate
+        { EnumPosition.Right, new Vector3(3, 0.5f, 45) } // Adjusted y-coordinate
     };
 
     private void Start()
@@ -30,6 +31,7 @@ public class SpawnManager : MonoBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayerMultiplayer;
             InvokeRepeating(nameof(SpawnObject), 1, 1);
         }
+        gameManager=GameManager.Instance;
     }
 
     private void SpawnPlayerMultiplayer(ulong clientId)
@@ -50,28 +52,35 @@ public class SpawnManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float currentTime = GameManager.Instance.GetTime();
+        float currentTime = gameManager.GetTime();
         float newSpawnRate = GetSpawnRate(currentTime);
 
         if (newSpawnRate != lastSpawnRate)
         {
             StopSpawning();
-            StartCoroutine(Wait(3f));
-            if (newSpawnRate > 0)
-            {
-                isSpawning = true;
-                InvokeRepeating(nameof(SpawnObject), 1, newSpawnRate);
-                Debug.Log("Spawn rate changed to: " + newSpawnRate);
-            }
+            StartCoroutine(WaitAndStartSpawning(newSpawnRate));
             lastSpawnRate = newSpawnRate;
+        }
+    }
+
+    private IEnumerator WaitAndStartSpawning(float newSpawnRate)
+    {
+        yield return Wait(5);
+        if (newSpawnRate > 0)
+        {
+            isSpawning = true;
+            InvokeRepeating(nameof(SpawnObject), 1, newSpawnRate);
+            Debug.Log("Spawn rate changed to: " + newSpawnRate);
         }
     }
 
     private float GetSpawnRate(float time)
     {
-        if (time >= (float)PhaseTime.ThirdPhase) return 0.2f;
-        if (time >= (float)PhaseTime.SecondPhase) return 0.5f;
-        if (time >= (float)PhaseTime.FirstPhase) return 1f;
+        if (time >= (float)PhaseTime.FifthPhase) return 0.2f;
+        else if (time >= (float)PhaseTime.FourthPhase) return 0.3f;
+        else if (time >= (float)PhaseTime.ThirdPhase) return 0.5f;
+        else if (time >= (float)PhaseTime.SecondPhase) return 0.7f;
+        else if (time >= (float)PhaseTime.FirstPhase) return 1f;
         return -1f;
     }
 
@@ -134,5 +143,10 @@ public class SpawnManager : MonoBehaviour
     private IEnumerator Wait(float seconds)
     {
         yield return new WaitForSeconds(seconds);
+    }
+
+    public float getYPlayerPosition()
+    {
+        return positionPlayer.y;
     }
 }

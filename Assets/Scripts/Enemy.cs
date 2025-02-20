@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class Enemy : ItemManager
 {
-    
-    
+
+
     private bool hasScored = false; // Per evitare punti duplicati
-    
-    
+
+
 
     new void Start()
     {
@@ -16,7 +16,7 @@ public class Enemy : ItemManager
     new void Update()
     {
         if (gameManager.IsGameOver()) return;
-        
+
         base.Update();
 
         if (!hasScored && transform.position.z <= 0)
@@ -31,8 +31,15 @@ public class Enemy : ItemManager
         if (other.gameObject == player)
         {
             Debug.Log("Player hit!");
-            //gameManager.StopSpawner();
-            //gameManager.GameOver();
+            var playerController = player.GetComponent<PlayerController>();
+            playerController.Hit();
+            Destroy(gameObject);
+            if (playerController.getLife() == 0)
+            {
+                //gameManager.StopSpawner();
+                //gameManager.GameOver();
+
+            }
         }
     }
 }
