@@ -24,6 +24,7 @@ public class MainMenuManager : NetworkBehaviour
 
     public void StartNewGame()
     {
+        Destroy(GameObject.Find("NetworkManager"));
         //load the main game scene
         SceneManager.LoadScene("MainGame");
     }
