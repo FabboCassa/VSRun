@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public abstract class ItemManager : MonoBehaviour
+public class ItemManager : NetworkBehaviour
 {
     protected GameManager gameManager;
     protected float speed;

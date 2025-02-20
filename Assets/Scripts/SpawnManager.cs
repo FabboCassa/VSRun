@@ -31,11 +31,12 @@ public class SpawnManager : MonoBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayerMultiplayer;
             InvokeRepeating(nameof(SpawnObject), 1, 1);
         }
-        gameManager=GameManager.Instance;
+        gameManager = GameManager.Instance;
     }
 
     private void SpawnPlayerMultiplayer(ulong clientId)
     {
+        
         if (NetworkManager.Singleton.IsServer) // Only the host can spawn players
         {
             GameObject player = Instantiate(NetworkManager.Singleton.NetworkConfig.PlayerPrefab, positionPlayer, Quaternion.identity); // Adjusted y-coordinate
@@ -102,7 +103,9 @@ public class SpawnManager : MonoBehaviour
             var instance = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             if (isMultiplayer())
             {
-                SpawnObjectMultiplayer(instance);
+                var instanceNetworkObject = instance.GetComponent<NetworkObject>();
+                instanceNetworkObject.Spawn();
+
             }
         }
     }
@@ -114,7 +117,12 @@ public class SpawnManager : MonoBehaviour
         var instance = Instantiate(powerUpPrefabs[randomIndex], spawnPosition, Quaternion.identity);
         if (isMultiplayer())
         {
-            SpawnObjectMultiplayer(instance);
+            var instanceNetworkObject = instance.GetComponent<NetworkObject>();
+            instanceNetworkObject.Spawn();
+        }
+        else
+        {
+            Instantiate(powerUpPrefabs[randomIndex], spawnPosition, Quaternion.identity);
         }
     }
 
@@ -132,12 +140,6 @@ public class SpawnManager : MonoBehaviour
     private bool isMultiplayer()
     {
         return NetworkManager.Singleton != null;
-    }
-
-    private void SpawnObjectMultiplayer(GameObject instance)
-    {
-        var instanceNetworkObject = instance.GetComponent<NetworkObject>();
-        instanceNetworkObject.Spawn();
     }
 
     private IEnumerator Wait(float seconds)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class Enemy : ItemManager
 {
@@ -28,18 +29,34 @@ public class Enemy : ItemManager
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == player)
+        if (other.gameObject.CompareTag("Player"))
         {
             Debug.Log("Player hit!");
-            var playerController = player.GetComponent<PlayerController>();
-            playerController.Hit();
-            Destroy(gameObject);
-            if (playerController.getLife() == 0)
-            {
-                //gameManager.StopSpawner();
-                //gameManager.GameOver();
 
+            var playerController = other.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.Hit();
+
+                if (playerController.getLife() == 0)
+                {
+                    // Qui possiamo chiamare un ServerRpc per distruggere il nemico lato server
+                    RequestDestroyServerRpc();
+                }
+                else
+                {
+                    Destroy(gameObject);
+                }
             }
+        }
+    }
+
+     [ServerRpc]
+    private void RequestDestroyServerRpc()
+    {
+        if (IsServer) // Solo il server può distruggere oggetti in rete
+        {
+            Destroy(gameObject);
         }
     }
 }
