@@ -42,6 +42,7 @@ public class Enemy : ItemManager
                 {
                     // Qui possiamo chiamare un ServerRpc per distruggere il nemico lato server
                     RequestDestroyServerRpc();
+                    gameManager.GameOver();
                 }
                 else
                 {
